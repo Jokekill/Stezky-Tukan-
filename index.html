@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stezky tukanů – digitální balíček</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header>
+  <h1>Stezky tukanů – pomocník</h1>
+  <p class="sub">Balíček terénů, rozlosování měst a „Zvláštní bonus“</p>
+</header>
+
+<main>
+  <!-- Ovládání RNG / seed -->
+  <section class="card controls">
+    <h2>Nastavení &amp; seed</h2>
+    <div class="grid g2">
+      <label>Seed:
+        <input id="seedInput" type="text" placeholder="např. tucana-2025" />
+      </label>
+      <div class="btn-row">
+        <button id="applySeed">Použít seed</button>
+        <button id="randomSeed">Náhodný seed</button>
+      </div>
+    </div>
+    <p class="hint">Seed = reprodukovatelné míchání karet i rozlosování měst (sdílej URL).</p>
+  </section>
+
+  <!-- Balíček terénů -->
+  <section class="card deck">
+    <div class="header-row">
+      <h2>Balíček terénů</h2>
+      <div class="round-info">
+        <span id="roundLabel">Kolo: 1/2</span>
+        <span id="turnLabel">Tah: 0</span>
+        <span id="leftLabel">Zbývá karet: 27</span>
+      </div>
+    </div>
+
+    <div class="draw-area">
+      <div class="last-draw">
+        <div class="cardface" id="cardA" data-type="none"><span>—</span></div>
+        <div class="plus">+</div>
+        <div class="cardface" id="cardB" data-type="none"><span>—</span></div>
+      </div>
+      <div class="btn-row">
+        <button id="drawTwo">Otočit 2 karty</button>
+        <button id="undo" class="secondary">Zpět (undo)</button>
+        <button id="resetRound" class="secondary">Reset kola</button>
+        <button id="newGame" class="danger">Nová hra</button>
+      </div>
+      <p id="deckMessage" class="msg"></p>
+    </div>
+
+    <div class="counts">
+      <div class="count" data-type="desert">Poušť: <b id="cnt-desert">8</b></div>
+      <div class="count" data-type="forest">Les: <b id="cnt-forest">7</b></div>
+      <div class="count" data-type="mountain">Hora: <b id="cnt-mountain">6</b></div>
+      <div class="count" data-type="water">Voda: <b id="cnt-water">4</b></div>
+      <div class="count" data-type="joker">Žolík: <b id="cnt-joker">2</b></div>
+    </div>
+
+    <details>
+      <summary>Historie tahů</summary>
+      <ol id="history"></ol>
+    </details>
+  </section>
+
+  <!-- Rozložení měst -->
+  <section class="card layout">
+    <h2>Rozložení měst (A–E, každé 2×, bez sousedních shod)</h2>
+    <div class="btn-row">
+      <button id="genLayout">Vylosovat rozložení</button>
+      <label>Posun pro hráče:
+        <input id="layoutOffset" type="number" min="0" max="9" value="0" />
+      </label>
+      <button id="applyOffset" class="secondary">Aplikovat posun</button>
+      <button id="copyLayout" class="secondary">Kopírovat jako text</button>
+    </div>
+    <div id="layoutVis" class="layout-vis" aria-live="polite"></div>
+    <p class="hint">
+      Oficiální pravidla používají <em>karty rozložení</em> (13 předpřipravených sekvencí).
+      Zde generujeme validní sekvenci se stejným omezením sousedů. Lze snadno přepnout
+      na „oficiální seznam“ (viz <code>layout.js</code>).
+    </p>
+  </section>
+
+  <!-- Zvláštní bonus (červené karty) -->
+  <section class="card bonus">
+    <h2>Zvláštní bonus</h2>
+    <div class="btn-row">
+      <button id="drawRedBonus">Vylosovat 1 bonus</button>
+    </div>
+    <div id="redBonusArea" class="bonus-area">
+      <div class="bonus-card placeholder" id="redBonusCard">
+        <img id="redBonusImg" alt="Zvláštní bonus" />
+        <div id="redBonusLabel">—</div>
+      </div>
+    </div>
+    <p class="hint">Ve 2–4 hráčích se používá 1 červená karta bonusu (varianta „Zvláštní bonus“). :contentReference[oaicite:3]{index=3}</p>
+  </section>
+
+</main>
+
+<footer>
+  <p>Pravidla a poměry karet viz oficiální pravidla (CZ/EN). :contentReference[oaicite:4]{index=4}</p>
+</footer>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
