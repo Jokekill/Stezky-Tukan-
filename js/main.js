@@ -1,18 +1,16 @@
 import { makeRng } from './rng.js';
 import { DeckManager, TERRAIN_LABEL } from './deck.js';
 import { generateCityLayout, rotateLayout, layoutToText } from './layout.js';
-import { drawRedBonus, renderMapBonuses, resetMapBonuses } from './bonus.js';
-
+import { renderCityBonuses, renderAttractionBonus, resetMapBonuses } from './bonus.js';
 
 const DEFAULT_VISIBLE = { deck:true, bonus:true, layout:false };
+const DEFAULT_PLAYERS = 4;
 
 let seed = getSeedFromUrl() || loadSeed() || 'tucana';
 let rng = makeRng(seed);
 let deck = new DeckManager(seed);
 let layout = null;
-const DEFAULT_PLAYERS = 4;
 let players = loadPlayers() || DEFAULT_PLAYERS;
-
 
 const $ = sel => document.querySelector(sel);
 
@@ -26,6 +24,7 @@ const el = {
   seedInput: $('#seedInput'),
   applySeed: $('#applySeed'),
   randomSeed: $('#randomSeed'),
+  playersInput: $('#playersInput'),
 
   // deck UI
   turnLabel: $('#turnLabel'),
@@ -57,39 +56,40 @@ const el = {
   applyOffset: $('#applyOffset'),
   copyLayout: $('#copyLayout'),
 
-  // bonus
-  drawRedBonus: $('#drawRedBonus'),
-  redBonusImg: $('#redBonusImg'),
-  redBonusLabel: $('#redBonusLabel'),
-  playersInput: $('#playersInput'),
-  bonusGrid: $('#bonusGrid'),
+  // bonus (města + 1 atrakce)
+  bonusCities: $('#bonusCities'),
+  bonusAttraction: $('#bonusAttraction'),
   resetMapBonuses: $('#resetMapBonuses'),
-
-
 };
 
 init();
 
 function init() {
   // seed
-  el.seedInput.value = seed;
-  // modules visibility
+  if (el.seedInput) el.seedInput.value = seed;
+
+  // viditelnost modulů
   applySavedVisibility();
 
+  // deck
   updateDeckUI(true);
   wireEvents();
 
-  el.playersInput.value = String(players);
-  renderMapBonuses(el.bonusGrid, seed, players);
+  // players
+  if (el.playersInput) el.playersInput.value = String(players);
 
-  // předvygeneruj layout
+  // bonusy: 1. řádek města, 2. řádek 1 atrakce (deterministicky dle seedu)
+  renderCityBonuses(el.bonusCities, seed, players);
+  renderAttractionBonus(el.bonusAttraction, seed);
+
+  // rozložení měst (A–E 2×, bez sousedních shod)
   doGenLayout();
 }
 
 /* ===== Menu & viditelnost modulů ===== */
 function wireEvents() {
   // hamburger
-  el.menuToggle.addEventListener('click', () => toggleMenu());
+  el.menuToggle?.addEventListener('click', () => toggleMenu());
   document.addEventListener('click', (e) => {
     if (!el.menuPanel.hidden && !el.menuPanel.contains(e.target) && e.target !== el.menuToggle) {
       closeMenu();
@@ -98,61 +98,57 @@ function wireEvents() {
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
 
   // module toggles
-  el.modDeck.addEventListener('change', onVisibilityChange);
-  el.modLayout.addEventListener('change', onVisibilityChange);
-  el.modBonus.addEventListener('change', onVisibilityChange);
+  el.modDeck?.addEventListener('change', onVisibilityChange);
+  el.modLayout?.addEventListener('change', onVisibilityChange);
+  el.modBonus?.addEventListener('change', onVisibilityChange);
 
   // seed
-  el.applySeed.addEventListener('click', () => {
+  el.applySeed?.addEventListener('click', () => {
     seed = el.seedInput.value.trim() || 'tucana';
     setSeedInUrl(seed);
     saveSeed(seed);
     rng = makeRng(seed);
     deck = new DeckManager(seed);
     layout = null;
+
     updateDeckUI(true);
     doGenLayout();
-    clearBonus();
-    renderMapBonuses(el.bonusGrid, seed);
-
+    // přerender bonusy pro nový seed
+    renderCityBonuses(el.bonusCities, seed, players);
+    renderAttractionBonus(el.bonusAttraction, seed);
   });
-  el.randomSeed.addEventListener('click', () => {
+
+  el.randomSeed?.addEventListener('click', () => {
     const s = `seed-${Math.random().toString(36).slice(2,8)}`;
     el.seedInput.value = s;
     el.applySeed.click();
   });
 
   // deck
-  el.drawTwo.addEventListener('click', onDrawTwo);
-  el.undo.addEventListener('click', () => { if (deck.undo()) updateDeckUI(); });
-  el.newRound.addEventListener('click', () => { deck.newRound(); updateDeckUI(true); clearBonus(); });
+  el.drawTwo?.addEventListener('click', onDrawTwo);
+  el.undo?.addEventListener('click', () => { if (deck.undo()) updateDeckUI(); });
+  el.newRound?.addEventListener('click', () => { deck.newRound(); updateDeckUI(true); });
 
   // layout
-  el.genLayout.addEventListener('click', doGenLayout);
-  el.applyOffset.addEventListener('click', applyLayoutOffset);
-  el.copyLayout.addEventListener('click', () => {
+  el.genLayout?.addEventListener('click', doGenLayout);
+  el.applyOffset?.addEventListener('click', applyLayoutOffset);
+  el.copyLayout?.addEventListener('click', () => {
     navigator.clipboard.writeText(layoutToText(getCurrentLayout())).then(()=> toast('Zkopírováno do schránky.'));
   });
 
-  // bonus
-  el.drawRedBonus.addEventListener('click', () => {
-    const b = drawRedBonus(rng);
-    el.redBonusImg.src = b.image;
-    el.redBonusImg.alt = b.name;
-    el.redBonusLabel.textContent = b.name;
-  });
-  el.resetMapBonuses.addEventListener('click', () => {
+  // bonusy
+  el.resetMapBonuses?.addEventListener('click', () => {
     resetMapBonuses(seed);
-    renderMapBonuses(el.bonusGrid, seed, players);
+    renderCityBonuses(el.bonusCities, seed, players);
+    renderAttractionBonus(el.bonusAttraction, seed);
   });
 
-  el.playersInput.addEventListener('change', () => {
+  // počet hráčů
+  el.playersInput?.addEventListener('change', () => {
     players = clamp(parseInt(el.playersInput.value || '4', 10), 2, 8);
     savePlayers(players);
-    renderMapBonuses(el.bonusGrid, seed, players);
+    renderCityBonuses(el.bonusCities, seed, players); // atrakce zůstává 1 kus, nezávislá na počtu hráčů
   });
-
-
 }
 
 function toggleMenu() {
@@ -160,7 +156,10 @@ function toggleMenu() {
   el.menuPanel.hidden = !open;
   el.menuToggle.setAttribute('aria-expanded', String(open));
 }
-function closeMenu() { el.menuPanel.hidden = true; el.menuToggle.setAttribute('aria-expanded','false'); }
+function closeMenu() {
+  el.menuPanel.hidden = true;
+  el.menuToggle.setAttribute('aria-expanded','false');
+}
 
 function onVisibilityChange() {
   el.deckSection.hidden   = !el.modDeck.checked;
@@ -183,7 +182,7 @@ function applySavedVisibility() {
 function onDrawTwo() {
   const res = deck.drawTwo();
   if (!res.done && res.endOfRound) {
-    el.deckMessage.textContent = res.message;  // pouze info; další kolo ručně tlačítkem
+    el.deckMessage.textContent = res.message;  // konec kola – další kolo ručně tlačítkem
     updateDeckUI();
     return;
   }
@@ -194,6 +193,11 @@ function onDrawTwo() {
     if (res.message) el.deckMessage.textContent = res.message;
     updateDeckUI();
   }
+  // spustí CSS animaci .flip
+    [el.cardA, el.cardB].forEach(n=>{
+        n.classList.remove('flip'); void n.offsetWidth; n.classList.add('flip');
+    });
+
 }
 
 function updateDeckUI(resetFaces=false) {
@@ -217,11 +221,11 @@ function updateDeckUI(resetFaces=false) {
   }
 }
 
-/* Obrázky = background + barevný overlay + text */
+/* Obrázky terénů = background + barevný overlay + text */
 const TERRAIN_IMG = {
   desert:   'assets/terrain/desert.png',
   forest:   'assets/terrain/forest.png',
-  mountain: 'assets/terrain/mountain.png', // dodej soubor
+  mountain: 'assets/terrain/mountain.png',
   water:    'assets/terrain/water.png',
   joker:    'assets/terrain/joker.png'
 };
@@ -239,11 +243,8 @@ function showCard(node, type) {
   }
 
   const imgPath = TERRAIN_IMG[type];
-  if (imgPath) {
-    node.style.setProperty('--bg-img', `url("${imgPath}")`);
-  } else {
-    node.style.setProperty('--bg-img', 'none');
-  }
+  if (imgPath) node.style.setProperty('--bg-img', `url("${imgPath}")`);
+  else         node.style.setProperty('--bg-img', 'none');
 
   const span = document.createElement('span');
   span.textContent = TERRAIN_LABEL[type] || type;
@@ -276,21 +277,25 @@ function renderLayout(L) {
   });
 }
 
-/* ===== Bonus ===== */
-function clearBonus() {
-  el.redBonusImg.src = '';
-  el.redBonusImg.alt = 'Zvláštní bonus';
-  el.redBonusLabel.textContent = '—';
-}
-
+/* ===== Utility ===== */
 function toast(txt) { el.deckMessage.textContent = txt; }
 
 /*** URL + storage helpers ***/
-function getSeedFromUrl() { const url = new URL(window.location.href); return url.searchParams.get('seed'); }
-function setSeedInUrl(s) { const url = new URL(window.location.href); url.searchParams.set('seed', s); history.replaceState(null, '', url.toString()); }
-function saveSeed(s){ try{ localStorage.setItem('tucana.seed', s); }catch{} }
-function loadSeed(){ try{ return localStorage.getItem('tucana.seed') || ''; }catch{ return ''; } }
-
+function getSeedFromUrl() {
+  const url = new URL(window.location.href);
+  return url.searchParams.get('seed');
+}
+function setSeedInUrl(s) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('seed', s);
+  history.replaceState(null, '', url.toString());
+}
+function saveSeed(s){
+  try{ localStorage.setItem('tucana.seed', s); }catch{}
+}
+function loadSeed(){
+  try{ return localStorage.getItem('tucana.seed') || ''; }catch{ return ''; }
+}
 function saveVisibility(){
   const v = { deck:el.modDeck.checked, layout:el.modLayout.checked, bonus:el.modBonus.checked };
   try{ localStorage.setItem('tucana.visible', JSON.stringify(v)); }catch{}
@@ -304,6 +309,12 @@ function loadVisibility(){
   }catch{ return { ...DEFAULT_VISIBLE }; }
 }
 function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
-function savePlayers(n){ try{ localStorage.setItem('tucana.players', String(n)); }catch{} }
-function loadPlayers(){ try{ const v = localStorage.getItem('tucana.players'); return v? parseInt(v,10):null; }catch{ return null; } }
-
+function savePlayers(n){
+  try{ localStorage.setItem('tucana.players', String(n)); }catch{}
+}
+function loadPlayers(){
+  try{
+    const v = localStorage.getItem('tucana.players');
+    return v? parseInt(v,10):null;
+  }catch{ return null; }
+}

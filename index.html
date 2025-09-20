@@ -97,32 +97,23 @@
     <div id="layoutVis" class="layout-vis" aria-live="polite"></div>
   </section>
 
-  <!-- Zvláštní bonus -->
+  <!-- Bonus -->
 <section class="card bonus" data-module="bonus" id="bonusSection">
   <h2>Bonusy</h2>
 
-  <!-- Bonusy z mapy (Atrakce / Města) -->
-  <div class="map-bonuses">
-    <div class="btn-row">
-      <button id="resetMapBonuses" class="secondary">Reset bonusů</button>
-    </div>
-    <div id="bonusGrid" class="bonus-grid" aria-live="polite"></div>
-  </div>
-
-  <hr class="sep" />
-
-  <!-- Zvláštní bonus (červená karta) – zůstává zachováno -->
-  <h3 class="subhead">Zvláštní bonus (červená karta)</h3>
   <div class="btn-row">
-    <button id="drawRedBonus">Vylosovat 1 bonus</button>
+    <button id="resetMapBonuses" class="secondary">Reset bonusů</button>
   </div>
-  <div id="redBonusArea" class="bonus-area">
-    <div class="bonus-card placeholder" id="redBonusCard">
-      <img id="redBonusImg" alt="Zvláštní bonus" />
-      <div id="redBonusLabel">—</div>
-    </div>
-  </div>
+
+  <!-- 1) města v řádku -->
+  <h3 class="subhead">Města</h3>
+  <div id="bonusCities" class="bonus-row" aria-live="polite"></div>
+
+  <!-- 2) jen jedna náhodná atrakce -->
+  <h3 class="subhead">Atrakce</h3>
+  <div id="bonusAttraction" class="bonus-row" aria-live="polite"></div>
 </section>
+
 
 </main>
 
