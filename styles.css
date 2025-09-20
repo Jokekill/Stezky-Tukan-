@@ -14,46 +14,67 @@
 html, body { margin:0; padding:0; background:var(--bg); color:var(--ink); font:16px/1.45 system-ui, Segoe UI, Roboto, Arial, sans-serif; }
 img { max-width: 100%; display: block; }
 
-header { padding: 28px 20px 8px; text-align:center; }
-h1 { margin:0 0 6px; font-weight:700; letter-spacing:.3px; }
-.sub { margin:0; color:var(--muted); }
+/* ===== Top bar + hamburger ===== */
+.topbar {
+  display:flex; align-items:center; justify-content:center;
+  position:relative; padding: 18px 16px 6px;
+}
+.topbar h1 { margin:0; font-weight:700; letter-spacing:.3px; }
+.hamburger {
+  position:absolute; right:16px; top:12px;
+  width:42px; height:42px; border-radius:10px; border:1px solid #2e3746;
+  background:#121620; color:#cfe1ff; font-size:20px; cursor:pointer;
+}
 
-/* ===== Layout stránky – max 2 sloupce, mobil 1 sloupec ===== */
+/* Dropdown menu */
+.menu {
+  position:absolute; right:16px; top:60px; z-index:50;
+  width: min(92vw, 360px);
+  background: #121620; border:1px solid #2e3746; border-radius:12px; padding:12px;
+  box-shadow: 0 16px 40px rgba(0,0,0,.45);
+}
+.menu-sec + .menu-sec { border-top:1px solid #2e3746; margin-top:10px; padding-top:10px; }
+.menu h3 { margin:6px 0 8px; font-size:14px; color:#cfe1ff; }
+.chk { display:block; margin:6px 0; }
+.stack { display:grid; gap:6px; }
+.stack input {
+  width:100%; padding:10px; border-radius:10px; border:1px solid #2e3746; background:#0f141f; color:var(--ink);
+}
+
+/* ===== Layout stránky – vždy jeden sloupec (obdélníky pod sebou) ===== */
 main {
   max-width: 1160px;
   margin: 0 auto;
   padding: 16px;
   display: grid;
   gap: 16px;
-  grid-template-columns: repeat(2, minmax(340px, 1fr)); /* max 2 */
+  grid-template-columns: 1fr; /* jen jeden sloupec na všech šířkách */
 }
 @media (max-width: 900px) {
   main { grid-template-columns: 1fr; }
 }
 
 .card { background:var(--card); border-radius: var(--radius); padding:16px; box-shadow: 0 6px 24px rgba(0,0,0,.25);}
-.card h2 { margin-top:0; }
+.card h2 { margin-top:0; text-align:center; }  /* vycentrované nadpisy */
+.muted, .hint { color:var(--muted); }
 
-.grid.g2 { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
-@media (max-width: 520px) {
-  .grid.g2 { grid-template-columns: 1fr; }
-}
-
-label input {
-  width:100%; margin-top:6px; padding:12px;
-  border-radius:10px; border:1px solid #2e3746; background:#121620; color:var(--ink);
-}
-
+/* ===== Tlačítka ===== */
 .btn-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+.card .btn-row { justify-content:center; }      /* tlačítka uprostřed */
 button { padding:10px 14px; border:none; border-radius:10px; background:var(--accent); color:#062; font-weight:700; cursor:pointer; }
 button.secondary { background:#2e3746; color:#cfe1ff; }
 button.danger { background:var(--danger); color:#300; }
-button:disabled { opacity:.5; cursor:not-allowed; }
+button:disabled { opacity:.55; cursor:not-allowed; }
 
+/* ===== Hlavičky karet ===== */
 .header-row { display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap; }
 .round-info { display:flex; gap:12px; color:var(--yellow); font-weight:700; }
 
-/* ===== Tah – dvě „karty“ vedle sebe, větší a responsivní ===== */
+/* Balíček terénů: hlavičku srovnat pod sebe a doprostřed */
+.deck .header-row { flex-direction:column; align-items:center; gap:6px; }
+.deck .round-info { justify-content:center; width:100%; }
+
+/* ===== Tah – dvě „karty“ vedle sebe, obrázek jako pozadí + barevný overlay + text ===== */
 .draw-area { text-align:center; }
 .last-draw {
   display:flex; align-items:center; justify-content:center;
@@ -62,21 +83,27 @@ button:disabled { opacity:.5; cursor:not-allowed; }
 .plus { font-size:24px; color:var(--muted); }
 
 .cardface {
-  width: 168px; height: 228px;   /* širší a vyšší = nepřetéká text */
-  border-radius:16px; background:#0e1320; border:2px solid #2e3746;
+  --bg-img: none;                  /* nastavuje JS (url(...)) */
+  --tint: rgba(14,19,32,.72);      /* přebarvení nad fotkou */
+  width: 168px; height: 228px;
+  border-radius:16px; border:2px solid #2e3746;
   display:flex; align-items:center; justify-content:center; position:relative;
+  background: linear-gradient(var(--tint), var(--tint)), var(--bg-img);
+  background-size: cover; background-position: center;
+  overflow: hidden;
 }
-.cardface span { font-size:28px; color:var(--muted); line-height:1.1; text-align:center; padding:0 6px; }
+.cardface span { font-size:28px; color:var(--ink); font-weight:800; text-shadow: 0 2px 8px rgba(0,0,0,.45); }
 @media (max-width: 520px) {
   .cardface { width: 132px; height: 184px; }
   .cardface span { font-size:22px; }
 }
 
-.cardface[data-type="desert"]   { background:#2b1d10; border-color:#a8743b; }
-.cardface[data-type="forest"]   { background:#102616; border-color:#3aa76d; }
-.cardface[data-type="mountain"] { background:#22242b; border-color:#9aa8b1; }
-.cardface[data-type="water"]    { background:#0f1f2d; border-color:#4bb1ff; }
-.cardface[data-type="joker"]    { background:#281a2e; border-color:#c37bd2; }
+/* typy – barva rámečku a odstín overlaye */
+.cardface[data-type="desert"]   { border-color:#a8743b; --tint: rgba(168,116,59,.50); }
+.cardface[data-type="forest"]   { border-color:#3aa76d; --tint: rgba(58,167,109,.45); }
+.cardface[data-type="mountain"] { border-color:#9aa8b1; --tint: rgba(154,168,177,.45); }
+.cardface[data-type="water"]    { border-color:#4bb1ff; --tint: rgba(75,177,255,.40); }
+.cardface[data-type="joker"]    { border-color:#c37bd2; --tint: rgba(195,123,210,.40); }
 
 /* počitadla karet */
 .counts {
@@ -88,23 +115,22 @@ button:disabled { opacity:.5; cursor:not-allowed; }
 
 .msg { min-height:1.2em; color:var(--blue); }
 
-/* ===== Rozložení měst – 2 řady × 5 sloupců, širší „dlaždice“ ===== */
+/* ===== Rozložení měst – 2 řady × 5 sloupců ===== */
 .layout-vis {
   display:grid;
-  grid-template-columns: repeat(5, minmax(64px, 1fr));  /* přesně 5 sloupců */
+  grid-template-columns: repeat(5, minmax(64px, 1fr));
   gap:10px; margin-top:10px;
 }
 .tile {
   background:#121620; border:1px solid #2e3746; border-radius:12px;
   padding:10px; display:flex; flex-direction:column; justify-content:center; align-items:center;
-  aspect-ratio: 1;           /* čtverec */
-  min-width: 64px;
+  aspect-ratio: 1; min-width:64px;
 }
 .tile .n { color:var(--muted); font-size:12px; }
 .tile .L { font-weight:800; font-size:22px; letter-spacing:.5px; }
 @media (max-width: 520px) {
   .layout-vis { grid-template-columns: repeat(5, 1fr); gap:8px; }
-  .tile { padding:8px; min-width: 54px; }
+  .tile { padding:8px; min-width:54px; }
   .tile .L { font-size:18px; }
 }
 
@@ -116,7 +142,3 @@ button:disabled { opacity:.5; cursor:not-allowed; }
 }
 .bonus-card img { max-width:180px; max-height:110px; display:block; }
 #redBonusLabel { margin-top:8px; color:var(--muted); }
-
-/* ===== Footer / drobnosti ===== */
-footer { max-width:1160px; margin: 8px auto 30px; padding: 0 16px; color:var(--muted); text-align:center; }
-.hint { color:var(--muted); margin-top:10px; font-size:.95em; }

@@ -3,37 +3,48 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Stezky tukanů – digitální balíček</title>
+  <title>Stezky tukanů – pomocník</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<header>
+<header class="topbar">
   <h1>Stezky tukanů – pomocník</h1>
-  <p class="sub">Balíček terénů, rozlosování měst a „Zvláštní bonus“</p>
-</header>
 
-<main>
-  <!-- Ovládání RNG / seed -->
-  <section class="card controls">
-    <h2>Nastavení &amp; seed</h2>
-    <div class="grid g2">
-      <label>Seed:
+  <!-- Hamburger -->
+  <button id="menuToggle" class="hamburger" aria-haspopup="true" aria-expanded="false" aria-controls="menuPanel" title="Menu">
+    ☰
+  </button>
+
+  <!-- Dropdown menu -->
+  <nav id="menuPanel" class="menu" hidden>
+    <div class="menu-sec">
+      <h3>Zobrazit moduly</h3>
+      <label class="chk"><input type="checkbox" id="modDeck" checked> Balíček terénů</label>
+      <label class="chk"><input type="checkbox" id="modBonus" checked> Zvláštní bonus</label>
+      <label class="chk"><input type="checkbox" id="modLayout"> Rozložení měst</label>
+    </div>
+
+    <div class="menu-sec">
+      <h3>Nastavení &amp; seed</h3>
+      <label class="stack">
+        <span>Seed:</span>
         <input id="seedInput" type="text" placeholder="např. tucana-2025" />
       </label>
       <div class="btn-row">
         <button id="applySeed">Použít seed</button>
-        <button id="randomSeed">Náhodný seed</button>
+        <button id="randomSeed" class="secondary">Náhodný seed</button>
       </div>
+      <p class="hint">Seed = reprodukovatelné míchání a rozlosování.</p>
     </div>
-    <p class="hint">Seed = reprodukovatelné míchání karet i rozlosování měst (sdílej URL).</p>
-  </section>
+  </nav>
+</header>
 
+<main>
   <!-- Balíček terénů -->
-  <section class="card deck">
+  <section class="card deck" data-module="deck" id="deckSection">
     <div class="header-row">
       <h2>Balíček terénů</h2>
       <div class="round-info">
-        <span id="roundLabel">Kolo: 1/2</span>
         <span id="turnLabel">Tah: 0</span>
         <span id="leftLabel">Zbývá karet: 27</span>
       </div>
@@ -48,8 +59,7 @@
       <div class="btn-row">
         <button id="drawTwo">Otočit 2 karty</button>
         <button id="undo" class="secondary">Zpět (undo)</button>
-        <button id="resetRound" class="secondary">Reset kola</button>
-        <button id="newGame" class="danger">Nová hra</button>
+        <button id="newRound" class="danger">Nové kolo</button>
       </div>
       <p id="deckMessage" class="msg"></p>
     </div>
@@ -69,7 +79,7 @@
   </section>
 
   <!-- Rozložení měst -->
-  <section class="card layout">
+  <section class="card layout" data-module="layout" id="layoutSection" hidden>
     <h2>Rozložení měst (A–E, každé 2×, bez sousedních shod)</h2>
     <div class="btn-row">
       <button id="genLayout">Vylosovat rozložení</button>
@@ -80,15 +90,11 @@
       <button id="copyLayout" class="secondary">Kopírovat jako text</button>
     </div>
     <div id="layoutVis" class="layout-vis" aria-live="polite"></div>
-    <p class="hint">
-      Oficiální pravidla používají <em>karty rozložení</em> (13 předpřipravených sekvencí).
-      Zde generujeme validní sekvenci se stejným omezením sousedů. Lze snadno přepnout
-      na „oficiální seznam“ (viz <code>layout.js</code>).
-    </p>
+    <p class="hint">Chceš-li „oficiální“ 13 sekvencí, umím je přidat do <code>layout.js</code> a přepnout generátor.</p>
   </section>
 
-  <!-- Zvláštní bonus (červené karty) -->
-  <section class="card bonus">
+  <!-- Zvláštní bonus -->
+  <section class="card bonus" data-module="bonus" id="bonusSection">
     <h2>Zvláštní bonus</h2>
     <div class="btn-row">
       <button id="drawRedBonus">Vylosovat 1 bonus</button>
@@ -99,13 +105,11 @@
         <div id="redBonusLabel">—</div>
       </div>
     </div>
-    <p class="hint">Ve 2–4 hráčích se používá 1 červená karta bonusu (varianta „Zvláštní bonus“). :contentReference[oaicite:3]{index=3}</p>
   </section>
-
 </main>
 
 <footer>
-  <p>Pravidla a poměry karet viz oficiální pravidla (CZ/EN). :contentReference[oaicite:4]{index=4}</p>
+  <p class="muted">Verze pro GitHub Pages. Obrázky terénů: <code>assets/terrain/*.png</code>.</p>
 </footer>
 
 <script type="module" src="js/main.js"></script>
