@@ -129,3 +129,46 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .bonus-card{width:220px;min-height:130px;background:#121620;border:1px dashed #2e3746;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .bonus-card img{max-width:180px;max-height:110px}
 #redBonusLabel{margin-top:8px;color:var(--muted)}
+
+
+/* === HEX s barevným okrajem podle typu ===
+   Princip: .cardface je „držák“, vlastní hex dělají dvě vrstvy:
+   ::before = okraj (border) v barvě terénu
+   ::after  = vnitřek s PNG + barevný overlay (tint)
+*/
+.cardface{
+  background:none;            /* nuluje původní background */
+  clip-path:none;             /* neklipuj samotný wrapper */
+  filter:none;                /* zahodíme drop-shadow trik */
+  position:relative;
+}
+.cardface span{ position:relative; z-index:1; } /* text nad vrstvami */
+
+/* Okraj (border) – plný hex v barvě typu */
+.cardface::before{
+  content:"";
+  position:absolute;
+  inset:0;                    /* velikost okraje se řídí insetem rozdílu s ::after */
+  background: var(--hex-border, #2e3746);
+  clip-path: polygon(25% 4%,75% 4%,100% 50%,75% 96%,25% 96%,0% 50%);
+  border-radius:0;
+}
+
+/* Vnitřek – menší hex s pozadím a tónováním */
+.cardface::after{
+  content:"";
+  position:absolute;
+  inset:4px;                  /* 🔧 šířka okraje (4px). Klidně uprav na 3–6 px */
+  background: linear-gradient(var(--tint), var(--tint)), var(--bg-img);
+  background-size: cover; background-position: center;
+  clip-path: polygon(25% 4%,75% 4%,100% 50%,75% 96%,25% 96%,0% 50%);
+  border-radius:0;
+  z-index:0;
+}
+
+/* Barvy okrajů (stejné jako dřív) + tónování */
+.cardface[data-type="desert"]   { --hex-border:#a8743b; --tint: rgba(168,116,59,.50); }
+.cardface[data-type="forest"]   { --hex-border:#3aa76d; --tint: rgba(58,167,109,.45); }
+.cardface[data-type="mountain"] { --hex-border:#9aa8b1; --tint: rgba(154,168,177,.45); }
+.cardface[data-type="water"]    { --hex-border:#4bb1ff; --tint: rgba(75,177,255,.40); }
+.cardface[data-type="joker"]    { --hex-border:#c37bd2; --tint: rgba(195,123,210,.40); }
