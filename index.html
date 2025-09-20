@@ -35,6 +35,11 @@
         <button id="randomSeed" class="secondary">Náhodný seed</button>
       </div>
       <p class="hint">Seed = reprodukovatelné míchání a rozlosování.</p>
+        <label class="stack" style="margin-top:10px;">
+            <span>Počet hráčů (2–8):</span>
+            <input id="playersInput" type="number" min="2" max="8" value="4" />
+        </label>
+       <p class="hint">Při 5–8 hráčích se u měst zpřístupní i bonus pro 2. hráče.</p>
     </div>
   </nav>
 </header>
@@ -90,26 +95,39 @@
       <button id="copyLayout" class="secondary">Kopírovat jako text</button>
     </div>
     <div id="layoutVis" class="layout-vis" aria-live="polite"></div>
-    <p class="hint">Chceš-li „oficiální“ 13 sekvencí, umím je přidat do <code>layout.js</code> a přepnout generátor.</p>
   </section>
 
   <!-- Zvláštní bonus -->
-  <section class="card bonus" data-module="bonus" id="bonusSection">
-    <h2>Zvláštní bonus</h2>
+<section class="card bonus" data-module="bonus" id="bonusSection">
+  <h2>Bonusy</h2>
+
+  <!-- Bonusy z mapy (Atrakce / Města) -->
+  <div class="map-bonuses">
     <div class="btn-row">
-      <button id="drawRedBonus">Vylosovat 1 bonus</button>
+      <button id="resetMapBonuses" class="secondary">Reset bonusů</button>
     </div>
-    <div id="redBonusArea" class="bonus-area">
-      <div class="bonus-card placeholder" id="redBonusCard">
-        <img id="redBonusImg" alt="Zvláštní bonus" />
-        <div id="redBonusLabel">—</div>
-      </div>
+    <div id="bonusGrid" class="bonus-grid" aria-live="polite"></div>
+  </div>
+
+  <hr class="sep" />
+
+  <!-- Zvláštní bonus (červená karta) – zůstává zachováno -->
+  <h3 class="subhead">Zvláštní bonus (červená karta)</h3>
+  <div class="btn-row">
+    <button id="drawRedBonus">Vylosovat 1 bonus</button>
+  </div>
+  <div id="redBonusArea" class="bonus-area">
+    <div class="bonus-card placeholder" id="redBonusCard">
+      <img id="redBonusImg" alt="Zvláštní bonus" />
+      <div id="redBonusLabel">—</div>
     </div>
-  </section>
+  </div>
+</section>
+
 </main>
 
 <footer>
-  <p class="muted">Verze pro GitHub Pages. Obrázky terénů: <code>assets/terrain/*.png</code>.</p>
+  <p class="muted">Verze pro GitHub Pages.</p>
 </footer>
 
 <script type="module" src="js/main.js"></script>

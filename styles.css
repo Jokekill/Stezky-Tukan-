@@ -142,3 +142,83 @@ button:disabled { opacity:.55; cursor:not-allowed; }
 }
 .bonus-card img { max-width:180px; max-height:110px; display:block; }
 #redBonusLabel { margin-top:8px; color:var(--muted); }
+/* ===== Oddělovač v bonus sekci ===== */
+.sep {
+  border: none;
+  border-top: 1px solid #2e3746;
+  margin: 16px 0;
+  opacity: .7;
+}
+.subhead { margin: 0 0 8px; text-align: center; color: var(--muted); }
+
+/* ===== Bonusy z mapy – grid ===== */
+.bonus-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* klikací bonus karta s PNG pozadím + overlayem */
+.bonus-card.map {
+  --bg-img: none;
+  --tint: rgba(10, 14, 22, .55);
+  position: relative;
+  background: linear-gradient(var(--tint), var(--tint)), var(--bg-img);
+  background-size: cover; background-position: center;
+  border: 2px solid #2e3746;
+  border-radius: 14px;
+  min-height: 140px;
+  padding: 12px;
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  transition: transform .06s ease, filter .2s ease, border-color .2s ease;
+}
+.bonus-card.map:hover { transform: translateY(-1px); border-color:#5f7ea8; }
+.bonus-card.map:focus-visible { box-shadow: 0 0 0 3px rgba(112,161,255,.35); }
+
+/* Název uprostřed dole */
+.bonus-card.map .title {
+  color: var(--ink);
+  font-weight: 800;
+  text-shadow: 0 2px 8px rgba(0,0,0,.45);
+  text-align: center;
+  font-size: 18px;
+}
+
+/* Badge s body v pravém horním rohu */
+.bonus-card.map .badge {
+  position: absolute; top: 10px; right: 10px;
+  background: rgba(0,0,0,.55);
+  color: #fff; padding: 6px 9px; border-radius: 999px;
+  font-weight: 800; font-size: 14px;
+  border: 1px solid rgba(255,255,255,.15);
+}
+
+/* Stav „Získáno“ – překrytí + odšednutí */
+.bonus-card.map .status {
+  position: absolute; inset: 0;
+  display: flex; align-items:center; justify-content:center;
+  color:#fff; font-weight: 900; font-size: 20px;
+  text-shadow: 0 2px 10px rgba(0,0,0,.6);
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s ease;
+}
+.bonus-card.map.claimed {
+  filter: grayscale(.7) brightness(.9);
+}
+.bonus-card.map.claimed .status {
+  opacity: 1;
+  background: rgba(0,0,0,.28);
+}
+.grouphead {
+  margin: 14px 4px 4px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #cfe1ff;
+  text-align: center;
+}
+

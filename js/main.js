@@ -1,7 +1,8 @@
 import { makeRng } from './rng.js';
 import { DeckManager, TERRAIN_LABEL } from './deck.js';
 import { generateCityLayout, rotateLayout, layoutToText } from './layout.js';
-import { drawRedBonus } from './bonus.js';
+import { drawRedBonus, renderMapBonuses, resetMapBonuses } from './bonus.js';
+
 
 const DEFAULT_VISIBLE = { deck:true, bonus:true, layout:false };
 
@@ -9,6 +10,9 @@ let seed = getSeedFromUrl() || loadSeed() || 'tucana';
 let rng = makeRng(seed);
 let deck = new DeckManager(seed);
 let layout = null;
+const DEFAULT_PLAYERS = 4;
+let players = loadPlayers() || DEFAULT_PLAYERS;
+
 
 const $ = sel => document.querySelector(sel);
 
@@ -57,6 +61,11 @@ const el = {
   drawRedBonus: $('#drawRedBonus'),
   redBonusImg: $('#redBonusImg'),
   redBonusLabel: $('#redBonusLabel'),
+  playersInput: $('#playersInput'),
+  bonusGrid: $('#bonusGrid'),
+  resetMapBonuses: $('#resetMapBonuses'),
+
+
 };
 
 init();
@@ -69,6 +78,10 @@ function init() {
 
   updateDeckUI(true);
   wireEvents();
+
+  el.playersInput.value = String(players);
+  renderMapBonuses(el.bonusGrid, seed, players);
+
   // předvygeneruj layout
   doGenLayout();
 }
@@ -100,6 +113,8 @@ function wireEvents() {
     updateDeckUI(true);
     doGenLayout();
     clearBonus();
+    renderMapBonuses(el.bonusGrid, seed);
+
   });
   el.randomSeed.addEventListener('click', () => {
     const s = `seed-${Math.random().toString(36).slice(2,8)}`;
@@ -126,6 +141,18 @@ function wireEvents() {
     el.redBonusImg.alt = b.name;
     el.redBonusLabel.textContent = b.name;
   });
+  el.resetMapBonuses.addEventListener('click', () => {
+    resetMapBonuses(seed);
+    renderMapBonuses(el.bonusGrid, seed, players);
+  });
+
+  el.playersInput.addEventListener('change', () => {
+    players = clamp(parseInt(el.playersInput.value || '4', 10), 2, 8);
+    savePlayers(players);
+    renderMapBonuses(el.bonusGrid, seed, players);
+  });
+
+
 }
 
 function toggleMenu() {
@@ -276,3 +303,7 @@ function loadVisibility(){
     return { deck:!!v.deck, layout:!!v.layout, bonus:!!v.bonus };
   }catch{ return { ...DEFAULT_VISIBLE }; }
 }
+function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+function savePlayers(n){ try{ localStorage.setItem('tucana.players', String(n)); }catch{} }
+function loadPlayers(){ try{ const v = localStorage.getItem('tucana.players'); return v? parseInt(v,10):null; }catch{ return null; } }
+
